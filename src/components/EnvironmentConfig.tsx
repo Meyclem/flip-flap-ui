@@ -6,16 +6,28 @@ import { Button } from "./ui/button";
 import { Environment, EnvironmentConfig as EnvironmentConfigType } from "@/lib/types";
 import { ContextRulesBuilder } from "./ContextRulesBuilder";
 import { PhasesBuilder } from "./PhasesBuilder";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Copy } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { toast } from "sonner";
 
 interface EnvironmentConfigProps {
   environment: Environment;
   config: EnvironmentConfigType;
+  allEnvironments: {
+    development: EnvironmentConfigType;
+    staging: EnvironmentConfigType;
+    production: EnvironmentConfigType;
+  };
   onChange: (config: EnvironmentConfigType) => void;
 }
 
-export const EnvironmentConfig = ({ environment, config, onChange }: EnvironmentConfigProps) => {
+export const EnvironmentConfig = ({ environment, config, allEnvironments, onChange }: EnvironmentConfigProps) => {
   const [contextRulesOpen, setContextRulesOpen] = useState(false);
   const [phasesOpen, setPhasesOpen] = useState(false);
 
@@ -23,6 +35,22 @@ export const EnvironmentConfig = ({ environment, config, onChange }: Environment
     development: "Development",
     staging: "Staging",
     production: "Production",
+  };
+
+  const getOtherEnvironments = (): Environment[] => {
+    return (["development", "staging", "production"] as Environment[]).filter(
+      (env) => env !== environment
+    );
+  };
+
+  const copyFromEnvironment = (sourceEnv: Environment) => {
+    const sourceConfig = allEnvironments[sourceEnv];
+    onChange({
+      ...config,
+      contextRules: sourceConfig.contextRules ? { ...sourceConfig.contextRules } : undefined,
+      phases: sourceConfig.phases ? [...sourceConfig.phases] : undefined,
+    });
+    toast.success(`Copied settings from ${envLabels[sourceEnv]}`);
   };
 
   return (
@@ -46,6 +74,26 @@ export const EnvironmentConfig = ({ environment, config, onChange }: Environment
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="flex justify-end mb-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Copy className="h-4 w-4 mr-2" />
+                Copy from Environment
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {getOtherEnvironments().map((env) => (
+                <DropdownMenuItem
+                  key={env}
+                  onClick={() => copyFromEnvironment(env)}
+                >
+                  Copy from {envLabels[env]}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <Collapsible open={contextRulesOpen} onOpenChange={setContextRulesOpen}>
           <CollapsibleTrigger asChild>
             <Button variant="outline" className="w-full justify-between">

@@ -195,18 +195,21 @@ export default function CreateEditFlag() {
               <EnvironmentConfigComponent
                 environment="development"
                 config={(watch("environments.development") as any) || { enabled: false }}
+                allEnvironments={watch("environments") as any}
                 onChange={(config) => setValue("environments.development", config as any)}
               />
 
               <EnvironmentConfigComponent
                 environment="staging"
                 config={(watch("environments.staging") as any) || { enabled: false }}
+                allEnvironments={watch("environments") as any}
                 onChange={(config) => setValue("environments.staging", config as any)}
               />
 
               <EnvironmentConfigComponent
                 environment="production"
                 config={(watch("environments.production") as any) || { enabled: false }}
+                allEnvironments={watch("environments") as any}
                 onChange={(config) => setValue("environments.production", config as any)}
               />
             </TabsContent>
