@@ -15,8 +15,25 @@ interface PhasesBuilderProps {
 
 export const PhasesBuilder = ({ phases, onChange }: PhasesBuilderProps) => {
   const addPhase = () => {
-    const now = new Date().toISOString();
-    onChange([...phases, { startDate: now, percentage: 50 }]);
+    let startDate: string;
+    
+    // If there's a previous phase, start this phase at the end of the previous phase
+    if (phases.length > 0) {
+      const lastPhase = phases[phases.length - 1];
+      if (lastPhase.endDate) {
+        startDate = lastPhase.endDate;
+      } else {
+        // If previous phase has no end date, start 7 days after its start
+        const date = new Date(lastPhase.startDate);
+        date.setDate(date.getDate() + 7);
+        startDate = date.toISOString();
+      }
+    } else {
+      // First phase starts now
+      startDate = new Date().toISOString();
+    }
+    
+    onChange([...phases, { startDate, percentage: 50 }]);
   };
 
   const removePhase = (index: number) => {
